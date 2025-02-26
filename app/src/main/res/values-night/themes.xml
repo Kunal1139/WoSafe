@@ -3,5 +3,14 @@
     <style name="Base.Theme.WoSafe" parent="Theme.MaterialComponents.DayNight.NoActionBar">
         <!-- Customize your dark theme here. -->
         <!-- <item name="colorPrimary">@color/my_dark_primary</item> -->
+        <item name="colorPrimary">@color/bgmain</item>
+        <item name="colorPrimaryVariant">@color/bgmain</item>
+        <item name="colorOnPrimary">@color/white</item>
+        <item name="android:windowFullscreen" >true</item>
+
+        <!-- Set the status bar color to match the action bar -->
+        <item name="android:statusBarColor">?attr/colorPrimaryVariant</item>
+        <!-- Set the navigation bar color to match the action bar (optional) -->
+        <item name="android:navigationBarColor">@color/bgmain</item>
     </style>
 </resources>

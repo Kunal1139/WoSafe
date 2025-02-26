@@ -4,5 +4,12 @@
     <color name="white">#FFFFFFFF</color>
     <color name="bg">#FFECD0</color>
     <color name="bgmain">#FF3974</color>
+    <color name="bgframe">#FBF4EA</color>
+    <color name="saveButton">#67AF6A</color>
+    <color name="lavender">#8692f7</color>
+    <color name="grey">#D3D3D3</color>
+    <color name="buttonRed">#F85656</color>
+
+    <color name="design_dark_default_color_primary_variant">#FF3974</color>
 
 </resources>

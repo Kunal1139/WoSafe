@@ -5,13 +5,5 @@
     android:layout_height="match_parent"
     tools:context=".Subscriptions">
 
-    <!-- TODO: Update blank fragment layout -->
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:text="Geofencing"
-        android:gravity="center"
-        android:textSize="40sp"
-        android:textColor="@color/black"/>
 
 </FrameLayout>
