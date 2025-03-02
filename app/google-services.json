@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "334844789537",
+    "project_id": "wosafe2024",
+    "storage_bucket": "wosafe2024.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:334844789537:android:a0de827ce1a8f740c43460",
+        "android_client_info": {
+          "package_name": "com.example.wosafe"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBwGALdvzZHiLi-A4BlG_zXv4wz1RneC1s"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

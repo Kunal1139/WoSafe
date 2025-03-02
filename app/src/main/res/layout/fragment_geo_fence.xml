@@ -2,179 +2,185 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/frameLayout4"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".GeoFence">
 
+    <LinearLayout
+        android:id="@+id/linearLayout2"
+        android:layout_width="345dp"
+        android:layout_height="624dp"
+        android:layout_margin="1dp"
+        android:background="@drawable/shape"
+        android:orientation="vertical"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.494"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.496">
 
-     <LinearLayout
-    android:id="@+id/linearLayout2"
-    android:layout_width="345dp"
-    android:layout_height="624dp"
-    android:layout_marginStart="1dp"
-    android:layout_marginTop="1dp"
-    android:layout_marginEnd="1dp"
-    android:layout_marginBottom="1dp"
-    android:background="@drawable/shape"
-    android:orientation="vertical"
-    app:layout_constraintBottom_toBottomOf="parent"
-    app:layout_constraintEnd_toEndOf="parent"
-    app:layout_constraintHorizontal_bias="0.494"
-    app:layout_constraintStart_toStartOf="parent"
-    app:layout_constraintTop_toTopOf="parent"
-    app:layout_constraintVertical_bias="0.496">
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:backgroundTint="#67AF6A">
 
-         <androidx.constraintlayout.widget.ConstraintLayout
-             android:layout_width="match_parent"
-             android:layout_height="match_parent"
-             android:backgroundTint="#67AF6A">
+            <!-- Select Home Location Button -->
 
-             <EditText
-                 android:id="@+id/home"
-                 android:layout_width="254dp"
-                 android:layout_height="54dp"
-                 android:autoText="false"
-                 android:drawableEnd="@drawable/baseline_add_location_24"
-                 android:ems="10"
-                 android:hint="Select Home Location"
-                 android:inputType="phone"
-                 android:textColor="@color/black"
-                 android:textColorHint="@color/black"
-                 android:visibility="visible"
-                 app:layout_constraintBottom_toBottomOf="parent"
-                 app:layout_constraintEnd_toEndOf="parent"
-                 app:layout_constraintHorizontal_bias="0.296"
-                 app:layout_constraintStart_toStartOf="parent"
-                 app:layout_constraintTop_toTopOf="parent"
-                 app:layout_constraintVertical_bias="0.071" />
+            <!-- Select Workplace Location Button -->
 
-             <EditText
-                 android:id="@+id/workplace"
-                 android:layout_width="254dp"
-                 android:layout_height="54dp"
-                 android:autoText="false"
-                 android:drawableEnd="@drawable/baseline_add_location_24"
-                 android:ems="10"
-                 android:hint="Select Workplace Location"
-                 android:inputType="phone"
-                 android:textColor="@color/black"
-                 android:textColorHint="@color/black"
-                 android:visibility="visible"
-                 app:layout_constraintBottom_toBottomOf="parent"
-                 app:layout_constraintEnd_toEndOf="parent"
-                 app:layout_constraintHorizontal_bias="0.296"
-                 app:layout_constraintStart_toStartOf="parent"
-                 app:layout_constraintTop_toTopOf="parent"
-                 app:layout_constraintVertical_bias="0.228" />
+            <!-- Select Contacts Title -->
 
-             <TextView
-                 android:id="@+id/text"
-                 android:layout_width="wrap_content"
-                 android:layout_height="wrap_content"
-                 android:paddingTop="16dp"
-                 android:text="Select Contacts to Notify"
-                 android:textColor="@color/black"
-                 android:textSize="22sp"
-                 android:textStyle="bold"
-                 app:layout_constraintBottom_toTopOf="@+id/contact1"
-                 app:layout_constraintEnd_toEndOf="parent"
-                 app:layout_constraintHorizontal_bias="0.275"
-                 app:layout_constraintStart_toStartOf="parent"
-                 app:layout_constraintTop_toBottomOf="@+id/workplace"
-                 app:layout_constraintVertical_bias="0.5" />
+            <!-- Select First Contact -->
 
-             <EditText
-                 android:id="@+id/contact1"
-                 android:layout_width="254dp"
-                 android:layout_height="54dp"
-                 android:autoText="false"
-                 android:drawableEnd="@drawable/baseline_contacts_24"
-                 android:ems="10"
-                 android:hint="Select First Contact"
-                 android:inputType="phone"
-                 android:textColor="@color/black"
-                 android:textColorHint="@color/black"
-                 android:visibility="visible"
-                 app:layout_constraintBottom_toBottomOf="parent"
-                 app:layout_constraintEnd_toEndOf="parent"
-                 app:layout_constraintHorizontal_bias="0.296"
-                 app:layout_constraintStart_toStartOf="parent"
-                 app:layout_constraintTop_toTopOf="parent"
-                 app:layout_constraintVertical_bias="0.546" />
+            <!-- Select Second Contact -->
 
-             <EditText
-                 android:id="@+id/contact2"
-                 android:layout_width="254dp"
-                 android:layout_height="54dp"
-                 android:autoText="false"
-                 android:drawableEnd="@drawable/baseline_contacts_24"
-                 android:ems="10"
-                 android:hint="Select Second Contact"
-                 android:inputType="phone"
-                 android:textColor="@color/black"
-                 android:textColorHint="@color/black"
-                 android:visibility="visible"
-                 app:layout_constraintBottom_toBottomOf="parent"
-                 app:layout_constraintEnd_toEndOf="parent"
-                 app:layout_constraintHorizontal_bias="0.296"
-                 app:layout_constraintStart_toStartOf="parent"
-                 app:layout_constraintTop_toTopOf="parent"
-                 app:layout_constraintVertical_bias="0.691" />
+            <!-- Buttons: Reset & Save -->
 
-             <LinearLayout
-                 android:layout_width="306dp"
-                 android:layout_height="63dp"
-                 android:layout_marginBottom="72dp"
-                 android:gravity="center"
-                 android:orientation="horizontal"
-                 android:paddingTop="16dp"
-                 app:layout_constraintBottom_toBottomOf="parent"
-                 app:layout_constraintEnd_toEndOf="parent"
-                 app:layout_constraintHorizontal_bias="0.413"
-                 app:layout_constraintStart_toStartOf="parent"
-                 app:layout_constraintTop_toBottomOf="@+id/contact2"
-                 app:layout_constraintVertical_bias="1.0">
+            <EditText
+                android:id="@+id/workplaceText"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_marginStart="40dp"
+                android:layout_marginEnd="40dp"
+                android:layout_marginBottom="13dp"
+                android:ems="10"
+                android:hint="Select Work Location"
+                android:inputType="text"
+                app:layout_constraintBottom_toTopOf="@+id/workplace"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/homeText" />
 
-                 <Button
-                     android:id="@+id/reset_form"
-                     android:layout_width="101dp"
-                     android:layout_height="58dp"
-                     android:backgroundTint="@color/buttonRed"
+            <EditText
+                android:id="@+id/homeText"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="42dp"
+                android:layout_marginTop="50dp"
+                android:layout_marginEnd="42dp"
+                android:layout_marginBottom="79dp"
+                android:ems="10"
+                android:hint="Select Home Location"
+                android:inputType="text"
+                app:layout_constraintBottom_toTopOf="@+id/workplaceText"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
 
-                     android:paddingLeft="25dp"
-                     android:text="Reset"
-                     android:textColorLink="#009688"
-                     app:cornerRadius="30dp"
-                     app:layout_constraintBottom_toBottomOf="parent"
-                     app:layout_constraintEnd_toEndOf="parent"
-                     app:layout_constraintHorizontal_bias="0.498"
-                     app:layout_constraintStart_toStartOf="parent"
-                     app:layout_constraintTop_toTopOf="parent"
-                     app:layout_constraintVertical_bias="0.904" />
+            <Button
+                android:id="@+id/home"
+                android:layout_width="90dp"
+                android:layout_height="0dp"
+                android:layout_marginTop="112dp"
+                android:backgroundTint="@android:color/holo_blue_light"
+                android:text="Select"
+                android:textColor="@android:color/black"
+                app:cornerRadius="20dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.497"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
 
-                 <Button
-                     android:id="@+id/save_form"
-                     android:layout_width="100dp"
-                     android:layout_height="58dp"
-                     android:backgroundTint="@color/saveButton"
+            <Button
+                android:id="@+id/workplace"
+                android:layout_width="90dp"
+                android:layout_height="0dp"
+                android:layout_marginBottom="36dp"
+                android:backgroundTint="@android:color/holo_blue_light"
+                android:text="Select"
+                android:textColor="@android:color/black"
+                app:cornerRadius="20dp"
+                app:layout_constraintBottom_toTopOf="@+id/text"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.497"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/workplaceText" />
 
-                     android:padding="10dp"
-                     android:paddingStart="10dp"
-                     android:paddingLeft="50dp"
-                     android:text="Save"
-                     android:textColorLink="#009688"
-                     android:layout_margin="8dp"
-                     app:cornerRadius="30dp"
-                     app:layout_constraintBottom_toBottomOf="parent"
-                     app:layout_constraintEnd_toEndOf="parent"
-                     app:layout_constraintHorizontal_bias="0.498"
-                     app:layout_constraintStart_toStartOf="parent"
-                     app:layout_constraintTop_toTopOf="parent"
-                     app:layout_constraintVertical_bias="0.904" />
-             </LinearLayout>
-         </androidx.constraintlayout.widget.ConstraintLayout>
+            <TextView
+                android:id="@+id/text"
+                android:layout_width="281dp"
+                android:layout_height="0dp"
+                android:layout_marginBottom="22dp"
+                android:paddingTop="16dp"
+                android:text="Select Contacts to Notify"
+                android:textAlignment="center"
+                android:textColor="@color/black"
+                android:textSize="23sp"
+                android:textStyle="bold"
+                app:layout_constraintBottom_toTopOf="@+id/contact1"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/workplace" />
+
+            <EditText
+                android:id="@+id/contact1"
+                android:layout_width="254dp"
+                android:layout_height="0dp"
+                android:layout_marginBottom="12dp"
+                android:drawableEnd="@drawable/baseline_contacts_24"
+                android:hint="Select First Contact"
+                android:inputType="phone"
+                android:textColor="@color/black"
+                android:textColorHint="@color/black"
+                app:layout_constraintBottom_toTopOf="@+id/contact2"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.456"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/text" />
+
+            <EditText
+                android:id="@+id/contact2"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_marginBottom="47dp"
+                android:drawableEnd="@drawable/baseline_contacts_24"
+                android:hint="Select Second Contact"
+                android:inputType="phone"
+                android:textColor="@color/black"
+                android:textColorHint="@color/black"
+                app:layout_constraintBottom_toTopOf="@+id/linearLayout3"
+                app:layout_constraintEnd_toEndOf="@+id/contact1"
+                app:layout_constraintStart_toStartOf="@+id/contact1"
+                app:layout_constraintTop_toBottomOf="@+id/contact1" />
+
+            <LinearLayout
+                android:id="@+id/linearLayout3"
+                android:layout_width="306dp"
+                android:layout_height="0dp"
+                android:gravity="center"
+                android:orientation="horizontal"
+                android:paddingTop="16dp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.5"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/contact2"
+                app:layout_constraintVertical_bias="1.0">
+
+                <Button
+                    android:id="@+id/reset_form"
+                    android:layout_width="101dp"
+                    android:layout_height="58dp"
+                    android:backgroundTint="@color/buttonRed"
+                    android:text="Reset"
+                    android:textColor="@android:color/white"
+                    app:cornerRadius="30dp" />
+
+                <Button
+                    android:id="@+id/save_form"
+                    android:layout_width="100dp"
+                    android:layout_height="58dp"
+                    android:layout_margin="8dp"
+                    android:backgroundTint="@color/saveButton"
+                    android:text="Save"
+                    android:textColor="@android:color/white"
+                    app:cornerRadius="30dp" />
+
+            </LinearLayout>
+
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
     </LinearLayout>
-
 
 </androidx.constraintlayout.widget.ConstraintLayout>

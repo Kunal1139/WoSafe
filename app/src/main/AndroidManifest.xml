@@ -3,14 +3,18 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <!-- Required Permissions -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+
     <uses-permission-sdk-23 android:name="android.permission.SEND_SMS" />
     <uses-permission-sdk-23 android:name="android.permission.RECEIVE_SMS" />
+
     <uses-permission android:name="android.permission.READ_CONTACTS" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />
 
     <application
         android:allowBackup="true"
@@ -23,20 +27,47 @@
         android:theme="@style/Theme.WoSafe"
         tools:targetApi="31">
 
+        <!--
+             TODO: Before you run your application, you need a Google Maps API key.
+
+             To get one, follow the directions here:
+
+                https://developers.google.com/maps/documentation/android-sdk/get-api-key
+
+             Once you have your API key (it starts with "AIza"), define a new property in your
+             project's local.properties file (e.g. MAPS_API_KEY=Aiza...), and replace the
+             "YOUR_API_KEY" string in this file with "${MAPS_API_KEY}".
+        -->
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="AIzaSyCWysMjiIAfa1sHGDIWvGqI7-2iuTyO4cM" />
+
+        <activity
+            android:name=".MapsActivity"
+            android:exported="false"
+            android:label="@string/title_activity_maps" />
+        <!-- Activities -->
         <activity
             android:name=".LoginActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
-        <activity android:name=".ProfileActivity" android:exported="false"/>
-        <activity android:name=".SignupActivity" android:exported="false"/>
-        <activity android:name=".HelperClass" android:exported="false"/>
-        <activity android:name=".EditProfile" android:exported="false"/>
-
+        <activity
+            android:name=".ProfileActivity"
+            android:exported="false" />
+        <activity
+            android:name=".SignupActivity"
+            android:exported="false" />
+        <activity
+            android:name=".HelperClass"
+            android:exported="false" />
+        <activity
+            android:name=".EditProfile"
+            android:exported="false" />
         <activity
             android:name=".MainActivity"
             android:exported="true"
@@ -44,9 +75,7 @@
             <meta-data
                 android:name="android.app.lib_name"
                 android:value="" />
-        </activity>
-
-        <!-- Updated PowerButtonReceiver with android:exported="true" -->
+        </activity> <!-- Power Button Receiver -->
         <receiver
             android:name=".PowerButtonReceiver"
             android:exported="true">
@@ -54,8 +83,15 @@
                 <action android:name="android.intent.action.SCREEN_OFF" />
                 <action android:name="android.intent.action.SCREEN_ON" />
             </intent-filter>
+        </receiver> <!-- Foreground Service for Geofencing -->
+        <!-- Broadcast Receiver for Geofencing -->
+        <receiver
+            android:name=".GeofenceBroadcastReceiver"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.example.wosafe.GEOFENCE_TRANSITION" />
+            </intent-filter>
         </receiver>
-
     </application>
 
 </manifest>

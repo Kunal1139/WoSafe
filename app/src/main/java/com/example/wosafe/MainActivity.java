@@ -62,7 +62,7 @@ public class MainActivity extends AppCompatActivity {
                     replaceFragment(new Shorts());
                     break;
                 case R.id.subscriptions:
-                    replaceFragment(new Subscriptions());
+                    replaceFragment(new GeoFence());
                     break;
                 case R.id.contacts:
                     replaceFragment(new Contacts());
