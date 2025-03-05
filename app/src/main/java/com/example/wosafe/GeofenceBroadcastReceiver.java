@@ -4,6 +4,8 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
+import android.widget.Toast;
+
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 import com.google.android.gms.location.Geofence;
@@ -11,45 +13,39 @@ import com.google.android.gms.location.GeofencingEvent;
 import java.util.List;
 
 public class GeofenceBroadcastReceiver extends BroadcastReceiver {
+
+    private static final String TAG ="MapsActivity";
+
     @Override
     public void onReceive(Context context, Intent intent) {
+        Toast.makeText(context,"GeoFence Triggered ",Toast.LENGTH_SHORT).show();
+
         GeofencingEvent geofencingEvent = GeofencingEvent.fromIntent(intent);
-        if (geofencingEvent.hasError()) {
-            Log.e("GeofenceReceiver", "Error in geofencing event.");
+
+        if(geofencingEvent.hasError()){
+            Log.d(TAG,"onReceive : Error receiving geofence event ");
             return;
         }
 
-        List<Geofence> triggeringGeofences = geofencingEvent.getTriggeringGeofences();
-        int geofenceTransition = geofencingEvent.getGeofenceTransition();
+        List<Geofence> geofenceList=geofencingEvent.getTriggeringGeofences();
+        for (Geofence geofence: geofenceList){
+            Log.d(TAG,"onReceive :" + geofence.getRequestId());
+        }
+        int transitonType = geofencingEvent.getGeofenceTransition();
 
-        for (Geofence geofence : triggeringGeofences) {
-            String requestId = geofence.getRequestId();
+        switch (transitonType){
+            case  Geofence.GEOFENCE_TRANSITION_ENTER:
+                Toast.makeText(context,"GEOFENCE_TRANSITION_ENTER",Toast.LENGTH_SHORT).show();
+                break;
+            case  Geofence.GEOFENCE_TRANSITION_DWELL:
+                Toast.makeText(context,"GEOFENCE_TRANSITION_DWELL",Toast.LENGTH_SHORT).show();
+                break;
+            case  Geofence.GEOFENCE_TRANSITION_EXIT:
+                Toast.makeText(context,"GEOFENCE_TRANSITION_EXIT",Toast.LENGTH_SHORT).show();
+                break;
 
-            if (geofenceTransition == Geofence.GEOFENCE_TRANSITION_ENTER) {
-                if ("WORKPLACE".equals(requestId)) {
-                    sendNotification(context, "You have entered your Workplace Location!");
-                } else if ("HOME".equals(requestId)) {
-                    sendNotification(context, "You have entered your Home Location!");
-                }
-            } else if (geofenceTransition == Geofence.GEOFENCE_TRANSITION_EXIT) {
-                if ("HOME".equals(requestId)) {
-                    sendNotification(context, "You have exited your Home Location!");
-                } else if ("WORKPLACE".equals(requestId)) {
-                    sendNotification(context, "You have exited your Workplace Location!");
-                }
-            }
         }
     }
 
-    private void sendNotification(Context context, String message) {
-        NotificationCompat.Builder builder = new NotificationCompat.Builder(context, "geoFenceChannel")
-                .setSmallIcon(R.drawable.baseline_notifications_24)
-                .setContentTitle("Geofence Alert")
-                .setContentText(message)
-                .setPriority(NotificationCompat.PRIORITY_HIGH)
-                .setAutoCancel(true);
 
-        NotificationManagerCompat notificationManager = NotificationManagerCompat.from(context);
-        notificationManager.notify(1001, builder.build());
-    }
 }

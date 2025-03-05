@@ -6,6 +6,7 @@ import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentActivity;
 
 import android.Manifest;
+import android.app.PendingIntent;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.res.ColorStateList;
@@ -19,7 +20,9 @@ import android.widget.Button;
 import android.widget.Spinner;
 import android.widget.Toast;
 
+import com.google.android.gms.location.Geofence;
 import com.google.android.gms.location.GeofencingClient;
+import com.google.android.gms.location.GeofencingRequest;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -30,10 +33,15 @@ import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.example.wosafe.databinding.ActivityMapsBinding;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback , GoogleMap.OnMapLongClickListener {
 
     private GoogleMap mMap;
+    private GeofencingClient geofencingClient;
+    private GeofenceHelper geofenceHelper;
+
     private ActivityMapsBinding binding;
     private int FINE_LOCATION_ACCESS_REQUEST_CODE;
     public float GEOFENCE_RADIUS;
@@ -41,10 +49,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     Spinner spin;
     public LatLng currentMarker;
     private Circle currentCircle;
+    private String GEOFENCE_ID ="G1";
 
     public LatLng selectedLocation = null; // Store selected location
 
-    private GeofencingClient geofencingClient;
+
     private static final String TAG = "MapsActivity";
 
     @Override
@@ -96,7 +105,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 if (selectedLocation != null && GEOFENCE_RADIUS >= 0) {
                     mMap.clear(); // Clear previous markers and circles
                     addMarker(selectedLocation); // Add marker again
-                    addCircle(selectedLocation, GEOFENCE_RADIUS); // Draw circle at new radius
+                    addCircle(selectedLocation, GEOFENCE_RADIUS);
+
+                    // Draw circle at new radius
                 }
 
                 checkIfReadyToConfirm();
@@ -114,6 +125,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             mapFragment.getMapAsync(this);
         }
         geofencingClient = LocationServices.getGeofencingClient(this);
+        geofenceHelper =new GeofenceHelper(this);
+
 
         confirmBtn.setOnClickListener(view -> {
             if (selectedLocation == null) {
@@ -125,6 +138,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 Toast.makeText(MapsActivity.this, "Please select a radius first!", Toast.LENGTH_SHORT).show();
                 return;
             }
+
+            addGeofence(selectedLocation,GEOFENCE_RADIUS);
 
             // If all conditions are met, proceed
             Intent intent = new Intent();
@@ -166,6 +181,30 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             addCircle(latLng, GEOFENCE_RADIUS);
         }
         checkIfReadyToConfirm();
+    }
+
+    private void addGeofence(LatLng latlng,float radius){
+
+        Geofence geofence=geofenceHelper.getGeofence(GEOFENCE_ID,latlng,radius, Geofence.GEOFENCE_TRANSITION_ENTER | Geofence.GEOFENCE_TRANSITION_DWELL | Geofence.GEOFENCE_TRANSITION_EXIT);
+        GeofencingRequest geofencingRequest=geofenceHelper.getGeofencingRequest(geofence);
+        PendingIntent pendingIntent =geofenceHelper.getPendingIntent();
+        geofencingClient.addGeofences(geofencingRequest,pendingIntent)
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void unused) {
+
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        String errorMessage = geofenceHelper.getErrorString(e);
+                        Log.d(TAG,"onFailure :" + errorMessage);
+
+                    }
+                });
+
+
     }
 
     private void checkIfReadyToConfirm() {
