@@ -14,49 +14,62 @@ import com.google.android.gms.location.GeofenceStatusCodes;
 import com.google.android.gms.location.GeofencingRequest;
 import com.google.android.gms.maps.model.LatLng;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class GeofenceHelper extends ContextWrapper {
 
     private static final String TAG="GeofenceHelper";
     PendingIntent pendingIntent;
 
-    public GeofenceHelper(Context base)
-    {
+
+    public GeofenceHelper(Context base) {
         super(base);
     }
-    public GeofencingRequest getGeofencingRequest(Geofence geofence){
 
+    public GeofencingRequest getGeofencingRequest(Geofence geofence) {
+        // Create a new list of geofences
+        List<Geofence> geofences = new ArrayList<>();
+
+        // Add the passed geofence to the list
+        geofences.add(geofence);
+
+        // Return the geofencing request with the list of geofences
         return new GeofencingRequest.Builder()
-                .addGeofence(geofence)
+                .addGeofences(geofences)  // Use the list that contains the single geofence
                 .setInitialTrigger(GeofencingRequest.INITIAL_TRIGGER_ENTER)
                 .build();
     }
 
-    public Geofence getGeofence(String Id, LatLng latlng,float radius,int transitionTypes){
-        return new Geofence.Builder() .setCircularRegion(latlng.latitude,latlng.longitude,radius)
-                .setRequestId(Id)
+
+    public Geofence getGeofence(String ID, LatLng latLng, float radius, int transitionTypes) {
+        return new Geofence.Builder()
+                .setCircularRegion(latLng.latitude,latLng.longitude, radius)
+                .setRequestId(ID)
                 .setTransitionTypes(transitionTypes)
                 .setLoiteringDelay(5000)
                 .setExpirationDuration(Geofence.NEVER_EXPIRE)
                 .build();
+    }
 
-        }
-
-
-    public PendingIntent getPendingIntent(){
-
-        if(pendingIntent!= null){
+    public PendingIntent getPendingIntent() {
+        if (pendingIntent != null) {
             return pendingIntent;
         }
-        Intent intent=new Intent(this, GeofenceBroadcastReceiver.class);
-        pendingIntent=PendingIntent.getBroadcast(this, 2607,intent,PendingIntent.FLAG_UPDATE_CURRENT);
+        Intent intent = new Intent(this, GeofenceBroadcastReceiver.class);
+        pendingIntent = PendingIntent.getBroadcast(getApplicationContext(), 0, intent, PendingIntent.FLAG_UPDATE_CURRENT|PendingIntent.FLAG_MUTABLE);
 
         return pendingIntent;
     }
+
 
     public String getErrorString (Exception e){
         if(e instanceof ApiException){
             ApiException apiException = (ApiException) e;
             switch (apiException.getStatusCode()){
+
+                case GeofenceStatusCodes.GEOFENCE_INSUFFICIENT_LOCATION_PERMISSION:
+                    return " GEOFENCE INSUFFICIENT PERMISSION !! PLEASE GRANT PERMISSION FOR ALL TIME";
 
                 case GeofenceStatusCodes
                              .GEOFENCE_NOT_AVAILABLE:
