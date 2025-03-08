@@ -1,64 +1,94 @@
 package com.example.wosafe;
 
 import android.os.Bundle;
-
-import androidx.fragment.app.Fragment;
-
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.Toast;
 
-/**
- * A simple {@link Fragment} subclass.
- * Use the {@link Shorts#newInstance} factory method to
- * create an instance of this fragment.
- */
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentTransaction;
+
 public class Shorts extends Fragment {
 
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
+    private EditText editTextCabDriver, editTextVehicleNumber, editTextPickup, editTextDestination, editTextStop;
+    private Button buttonSelectRoute, buttonReset, buttonStart;
+    private ImageView imageViewPickup, imageViewDestination, imageViewStop;
 
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
-
-    public Shorts() {
-        // Required empty public constructor
-    }
-
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment Shorts.
-     */
-    // TODO: Rename and change types and number of parameters
-    public static Shorts newInstance(String param1, String param2) {
-        Shorts fragment = new Shorts();
-        Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
-        fragment.setArguments(args);
-        return fragment;
-    }
-
+    @Nullable
     @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
-        }
-    }
-
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_shorts, container, false);
+        View view = inflater.inflate(R.layout.fragment_shorts, container, false);
+
+        // Initialize views
+        editTextCabDriver = view.findViewById(R.id.editTextText2);
+        editTextVehicleNumber = view.findViewById(R.id.editTextText3);
+        editTextPickup = view.findViewById(R.id.editTextText5);
+        editTextDestination = view.findViewById(R.id.editTextText);
+        editTextStop = view.findViewById(R.id.editTextText4);
+
+        buttonSelectRoute = view.findViewById(R.id.button);
+        buttonReset = view.findViewById(R.id.button2);
+        buttonStart = view.findViewById(R.id.button3);
+
+        imageViewPickup = view.findViewById(R.id.imageView7);
+        imageViewDestination = view.findViewById(R.id.imageView9);
+        imageViewStop = view.findViewById(R.id.imageView8);
+
+        // Open MapsFragment when icons are clicked
+        imageViewPickup.setOnClickListener(v -> replaceFragment(new MapsFragment()));
+
+        imageViewDestination.setOnClickListener(v -> replaceFragment(new MapsFragment()));
+
+        imageViewStop.setOnClickListener(v -> replaceFragment(new MapsFragment()));
+
+        // Handle Reset button
+        buttonReset.setOnClickListener(v -> resetFields());
+
+        // Handle Start button
+        buttonStart.setOnClickListener(v -> startRoute());
+
+        // Select Route (Optional – add your logic here)
+        buttonSelectRoute.setOnClickListener(v ->
+                Toast.makeText(getContext(), "Select Route Clicked", Toast.LENGTH_SHORT).show()
+        );
+
+        return view;
+    }
+
+    private void replaceFragment(Fragment fragment) {
+        // This is how you replace fragments inside a fragment
+        FragmentTransaction transaction = requireActivity().getSupportFragmentManager().beginTransaction();
+        transaction.replace(R.id.frame_layout, fragment);  // Make sure your activity has a frame_layout
+        transaction.addToBackStack(null);  // Optional: adds to back stack
+        transaction.commit();
+    }
+
+    private void resetFields() {
+        editTextCabDriver.setText("");
+        editTextVehicleNumber.setText("");
+        editTextPickup.setText("");
+        editTextDestination.setText("");
+        editTextStop.setText("");
+        Toast.makeText(getContext(), "Fields Reset", Toast.LENGTH_SHORT).show();
+    }
+
+    private void startRoute() {
+        if (editTextCabDriver.getText().toString().isEmpty() ||
+                editTextVehicleNumber.getText().toString().isEmpty() ||
+                editTextPickup.getText().toString().isEmpty() ||
+                editTextDestination.getText().toString().isEmpty()) {
+
+            Toast.makeText(getContext(), "Please fill all required fields", Toast.LENGTH_SHORT).show();
+        } else {
+            Toast.makeText(getContext(), "Starting Route", Toast.LENGTH_SHORT).show();
+            // Add navigation logic if required
+        }
     }
 }
