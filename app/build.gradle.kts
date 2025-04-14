@@ -41,6 +41,7 @@ dependencies {
     implementation(libs.play.services.maps)
     implementation(libs.appcompat)
     implementation(libs.constraintlayout)
+    implementation(libs.firebase.storage)
     dependencies {
         implementation(libs.appcompat)
         implementation(libs.material)

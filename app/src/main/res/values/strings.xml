@@ -14,5 +14,6 @@
         <item>100 meter</item>
         <item>200 meter</item>
     </string-array>
+    <string name="title_activity_maps2">MapsActivity2</string>
 
 </resources>

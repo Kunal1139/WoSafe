@@ -27,19 +27,13 @@ public class GeofenceHelper extends ContextWrapper {
         super(base);
     }
 
-    public GeofencingRequest getGeofencingRequest(Geofence geofence) {
-        // Create a new list of geofences
-        List<Geofence> geofences = new ArrayList<>();
-
-        // Add the passed geofence to the list
-        geofences.add(geofence);
-
-        // Return the geofencing request with the list of geofences
+    public GeofencingRequest getGeofencingRequest(List<Geofence> geofenceList) {
         return new GeofencingRequest.Builder()
-                .addGeofences(geofences)  // Use the list that contains the single geofence
                 .setInitialTrigger(GeofencingRequest.INITIAL_TRIGGER_ENTER)
+                .addGeofences(geofenceList) // Add multiple geofences
                 .build();
     }
+
 
 
     public Geofence getGeofence(String ID, LatLng latLng, float radius, int transitionTypes) {

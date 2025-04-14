@@ -115,13 +115,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 }
 
                 // If a location has already been selected, update the circle
-                if (selectedLocation != null && GEOFENCE_RADIUS >= 0) {
-                    mMap.clear(); // Clear previous markers and circles
-                    addMarker(selectedLocation); // Add marker again
-                    addCircle(selectedLocation, GEOFENCE_RADIUS);
 
-                    // Draw circle at new radius
-                }
+
+
 
                 checkIfReadyToConfirm();
             }
@@ -142,43 +138,17 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
 
         confirmBtn.setOnClickListener(view -> {
-            if (selectedLocation == null) {
-                Toast.makeText(MapsActivity.this, "Please select a location first!", Toast.LENGTH_SHORT).show();
-                return;
-            }
-
-            if (GEOFENCE_RADIUS <= 0) {
-                Toast.makeText(MapsActivity.this, "Please select a radius first!", Toast.LENGTH_SHORT).show();
-                return;
-            }
-
-            // Generate unique Geofence ID
-            String requestID = geofenceCount == 0 ? "HOME_GEOFENCE" : "WORK_GEOFENCE";
-            GEOFENCE_ID = requestID;
-
 
             // Add geofence only when the user confirms
             Toast.makeText(this,"Processing to add Geofences",Toast.LENGTH_SHORT).show();
-
-            addGeofence(selectedLocation, GEOFENCE_RADIUS, GEOFENCE_ID);
-            Toast.makeText(this,"Geofence triggered successfully",Toast.LENGTH_SHORT).show();
+//            Toast.makeText(this,"Geofence triggered successfully",Toast.LENGTH_SHORT).show();
 
             // Send back the selected location
-            Intent intent = new Intent();
-            intent.putExtra("latitude", selectedLocation.latitude);
-            intent.putExtra("longitude", selectedLocation.longitude);
-            setResult(RESULT_OK, intent);
 //            finish();
         });
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, LOCATION_PERMISSION_REQUEST_CODE);
         }
-
-
-
-
-
-
 
     }
 
@@ -213,6 +183,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     @Override
 
     public void onMapLongClick(@NonNull LatLng latLng) {
+
+        if (GEOFENCE_RADIUS <= 0) {
+            Toast.makeText(this, "Please select a radius before adding a location!", Toast.LENGTH_LONG).show();
+            return;
+        }
+
         if (geofenceCount >= 2) {  // Prevent adding more than two geofences
             Toast.makeText(this, "You can only add two geofences!", Toast.LENGTH_SHORT).show();
             return;
@@ -229,9 +205,14 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         addMarker(latLng);
         selectedLocation = latLng;
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 18));
+        if (selectedLocation != null && GEOFENCE_RADIUS >= 0 && geofenceCount<=2) {
+            // mMap.clear(); // Clear previous markers and circles
+            //addMarker(selectedLocation); // Add marker again
+            addCircle(selectedLocation, GEOFENCE_RADIUS);
+            GEOFENCE_ID = (geofenceCount == 0) ? "HOME_GEOFENCE" : "WORK_GEOFENCE";
+            addGeofence(selectedLocation,GEOFENCE_RADIUS,GEOFENCE_ID);
 
-        if (GEOFENCE_RADIUS > 0) {
-            addCircle(latLng, GEOFENCE_RADIUS);
+            // Draw circle at new radius
         }
 
         checkIfReadyToConfirm();
@@ -258,50 +239,49 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
 
     private void addGeofence(LatLng latlng, float radius, String geofenceId) {
+        // Create the geofence using the provided geofenceId (not the class-level GEOFENCE_ID)
+        Geofence geofence = geofenceHelper.getGeofence(geofenceId, latlng, radius,
+                Geofence.GEOFENCE_TRANSITION_ENTER |
+                        Geofence.GEOFENCE_TRANSITION_DWELL |
+                        Geofence.GEOFENCE_TRANSITION_EXIT);
 
-        Geofence geofence=geofenceHelper.getGeofence(GEOFENCE_ID,latlng,radius,Geofence.GEOFENCE_TRANSITION_ENTER|Geofence.GEOFENCE_TRANSITION_DWELL|Geofence.GEOFENCE_TRANSITION_EXIT);
-        GeofencingRequest geofencingRequest = geofenceHelper.getGeofencingRequest(geofence);
-//        Geofence geofence = geofenceHelper.getGeofence( latlng, radius, geofenceId
-//                Geofence.GEOFENCE_TRANSITION_ENTER |
-//                        Geofence.GEOFENCE_TRANSITION_DWELL |
-//                        Geofence.GEOFENCE_TRANSITION_EXIT);
-//
-//
-//          // Store geofence in a list
-//
-//        GeofencingRequest geofencingRequest = geofenceHelper.getGeofencingRequest();
-//        if (geofencingClient == null) {
-//            Toast.makeText(this, "Google Play Services not available!", Toast.LENGTH_SHORT).show();
-//            return;
-//        }// Now handles multiple geofences
+        // Ensure multiple geofences are handled correctly
+        List<Geofence> geofenceList = new ArrayList<>();
+        geofenceList.add(geofence);
+
+        // Add new geofence to the list
+        if (geofenceCount == 1) {
+            geofenceList.add(geofenceHelper.getGeofence("HOME_GEOFENCE", latlng, radius,
+                    Geofence.GEOFENCE_TRANSITION_ENTER | Geofence.GEOFENCE_TRANSITION_DWELL | Geofence.GEOFENCE_TRANSITION_EXIT));
+        } else if (geofenceCount == 2) {
+            geofenceList.add(geofenceHelper.getGeofence("WORK_GEOFENCE", latlng, radius,
+                    Geofence.GEOFENCE_TRANSITION_ENTER | Geofence.GEOFENCE_TRANSITION_DWELL | Geofence.GEOFENCE_TRANSITION_EXIT));
+        }
+
+        GeofencingRequest geofencingRequest = geofenceHelper.getGeofencingRequest(geofenceList);
+
         PendingIntent pendingIntent = geofenceHelper.getPendingIntent();
 
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            // TODO: Consider calling
-            //    ActivityCompat#requestPermissions
-            // here to request the missing permissions, and then overriding
-            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-            //                                          int[] grantResults)
-            // to handle the case where the user grants the permission. See the documentation
-            // for ActivityCompat#requestPermissions for more details.
-            return;
+            return; // Return if permission is not granted
         }
+
         geofencingClient.addGeofences(geofencingRequest, pendingIntent)
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void unused) {
-                        Log.d(TAG,"OnSucess : Geofence Added successfully");
-
+                        Log.d(TAG, "OnSuccess: Geofence Added successfully: " + geofenceId);
                     }
                 })
                 .addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
-                        String errorMessage =geofenceHelper.getErrorString(e);
-                        Log.d(TAG,"Onfailure : " + errorMessage);
+                        String errorMessage = geofenceHelper.getErrorString(e);
+                        Log.d(TAG, "OnFailure: " + errorMessage);
                     }
                 });
     }
+
 
 
 
@@ -345,34 +325,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         geofenceCircles.add(circle); // Store the circle in the list
     }
 
-    private void createNotificationChannel() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            CharSequence name = "Geofence Channel";
-            String description = "Channel for geofence notifications";
-            int importance = NotificationManager.IMPORTANCE_HIGH;
-            NotificationChannel channel = new NotificationChannel("geofence_channel", name, importance);
-            channel.setDescription(description);
-
-            NotificationManager notificationManager = getSystemService(NotificationManager.class);
-            notificationManager.createNotificationChannel(channel);
-        }
-    }
-    private void checkAndRequestPermissions() {
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
-                != PackageManager.PERMISSION_GRANTED ||
-                ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_BACKGROUND_LOCATION)
-                        != PackageManager.PERMISSION_GRANTED) {
-
-            ActivityCompat.requestPermissions(this,
-                    new String[]{
-                            Manifest.permission.ACCESS_FINE_LOCATION,
-                            Manifest.permission.ACCESS_BACKGROUND_LOCATION
-                    }, LOCATION_PERMISSION_REQUEST_CODE);
-        } else {
-            // Permissions already granted, proceed with geofencing
-
-        }
-    }
 
     // Handle permission result
     @Override

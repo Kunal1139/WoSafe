@@ -1,94 +1,144 @@
 package com.example.wosafe;
 
+import android.app.Activity;
+import android.app.ProgressDialog;
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.ImageView;
 import android.widget.Toast;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentTransaction;
+
+import com.example.wosafe.databinding.FragmentShortsBinding;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
+
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
 
 public class Shorts extends Fragment {
 
-    private EditText editTextCabDriver, editTextVehicleNumber, editTextPickup, editTextDestination, editTextStop;
-    private Button buttonSelectRoute, buttonReset, buttonStart;
-    private ImageView imageViewPickup, imageViewDestination, imageViewStop;
+    private FragmentShortsBinding binding;
+    private ActivityResultLauncher<Intent> imagePickerLauncher;
+    private Uri imageUri;
+    private StorageReference storageReference;
+    private ProgressDialog progressDialog;
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
-        View view = inflater.inflate(R.layout.fragment_shorts, container, false);
+        binding = FragmentShortsBinding.inflate(inflater, container, false);
+        View view = binding.getRoot();
 
-        // Initialize views
-        editTextCabDriver = view.findViewById(R.id.editTextText2);
-        editTextVehicleNumber = view.findViewById(R.id.editTextText3);
-        editTextPickup = view.findViewById(R.id.editTextText5);
-        editTextDestination = view.findViewById(R.id.editTextText);
-        editTextStop = view.findViewById(R.id.editTextText4);
+        // Image Picker Launcher
+        imagePickerLauncher = registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(),
+                result -> {
+                    if (result.getResultCode() == Activity.RESULT_OK && result.getData() != null) {
+                        imageUri = result.getData().getData();
+                        binding.firebaseimage.setImageURI(imageUri);
+                        Toast.makeText(getContext(), "Image Selected", Toast.LENGTH_SHORT).show();
+                    }
+                }
+        );
 
-        buttonSelectRoute = view.findViewById(R.id.button);
-        buttonReset = view.findViewById(R.id.button2);
-        buttonStart = view.findViewById(R.id.button3);
+        // Click listeners
+        binding.imageView7.setOnClickListener(v -> openMapsActivity2("pickup"));
+        binding.imageView9.setOnClickListener(v -> openMapsActivity2("destination"));
+        binding.imageView8.setOnClickListener(v -> openMapsActivity2("stop"));
 
-        imageViewPickup = view.findViewById(R.id.imageView7);
-        imageViewDestination = view.findViewById(R.id.imageView9);
-        imageViewStop = view.findViewById(R.id.imageView8);
+        binding.button2.setOnClickListener(v -> resetFields());
 
-        // Open MapsFragment when icons are clicked
-        imageViewPickup.setOnClickListener(v -> replaceFragment(new MapsFragment()));
+        binding.button5.setOnClickListener(v -> selectImage());
 
-        imageViewDestination.setOnClickListener(v -> replaceFragment(new MapsFragment()));
+        binding.button4.setOnClickListener(v -> uploadImage());
 
-        imageViewStop.setOnClickListener(v -> replaceFragment(new MapsFragment()));
-
-        // Handle Reset button
-        buttonReset.setOnClickListener(v -> resetFields());
-
-        // Handle Start button
-        buttonStart.setOnClickListener(v -> startRoute());
-
-        // Select Route (Optional – add your logic here)
-        buttonSelectRoute.setOnClickListener(v ->
+        binding.button.setOnClickListener(v ->
                 Toast.makeText(getContext(), "Select Route Clicked", Toast.LENGTH_SHORT).show()
         );
 
+        loadSavedAddresses();
         return view;
     }
 
-    private void replaceFragment(Fragment fragment) {
-        // This is how you replace fragments inside a fragment
-        FragmentTransaction transaction = requireActivity().getSupportFragmentManager().beginTransaction();
-        transaction.replace(R.id.frame_layout, fragment);  // Make sure your activity has a frame_layout
-        transaction.addToBackStack(null);  // Optional: adds to back stack
-        transaction.commit();
+    private void selectImage() {
+        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+        intent.setType("image/*");
+        imagePickerLauncher.launch(intent);
+    }
+
+    private void uploadImage() {
+        if (imageUri == null) {
+            Toast.makeText(getContext(), "Please select an image first", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        progressDialog = new ProgressDialog(getContext());
+        progressDialog.setTitle("Uploading File...");
+        progressDialog.show();
+
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyy_dd_HH_mm_ss", Locale.CANADA);
+        String fileName = formatter.format(new Date());
+
+        storageReference = FirebaseStorage.getInstance().getReference("images/" + fileName);
+
+        storageReference.putFile(imageUri)
+                .addOnSuccessListener(taskSnapshot -> {
+                    binding.firebaseimage.setImageURI(null);
+                    imageUri = null;
+                    Toast.makeText(getContext(), "Successfully Uploaded", Toast.LENGTH_SHORT).show();
+                    if (progressDialog.isShowing()) progressDialog.dismiss();
+                })
+                .addOnFailureListener(e -> {
+                    if (progressDialog.isShowing()) progressDialog.dismiss();
+                    Toast.makeText(getContext(), "Upload Failed", Toast.LENGTH_SHORT).show();
+                });
+    }
+
+    private void openMapsActivity2(String locationType) {
+        Intent intent = new Intent(getActivity(), MapsActivity2.class);
+        intent.putExtra("location_type", locationType);
+        startActivity(intent);
     }
 
     private void resetFields() {
-        editTextCabDriver.setText("");
-        editTextVehicleNumber.setText("");
-        editTextPickup.setText("");
-        editTextDestination.setText("");
-        editTextStop.setText("");
+        binding.editTextText5.setText(""); // Pickup
+        binding.editTextText.setText("");  // Destination
+        binding.editTextText4.setText(""); // Stop
+
+        SharedPreferences.Editor editor = requireActivity()
+                .getSharedPreferences("location_prefs", getContext().MODE_PRIVATE)
+                .edit();
+        editor.clear();
+        editor.apply();
+
         Toast.makeText(getContext(), "Fields Reset", Toast.LENGTH_SHORT).show();
     }
 
-    private void startRoute() {
-        if (editTextCabDriver.getText().toString().isEmpty() ||
-                editTextVehicleNumber.getText().toString().isEmpty() ||
-                editTextPickup.getText().toString().isEmpty() ||
-                editTextDestination.getText().toString().isEmpty()) {
+    private void loadSavedAddresses() {
+        SharedPreferences prefs = requireActivity()
+                .getSharedPreferences("location_prefs", getContext().MODE_PRIVATE);
 
-            Toast.makeText(getContext(), "Please fill all required fields", Toast.LENGTH_SHORT).show();
-        } else {
-            Toast.makeText(getContext(), "Starting Route", Toast.LENGTH_SHORT).show();
-            // Add navigation logic if required
-        }
+        binding.editTextText5.setText(prefs.getString("pickup_address", ""));
+        binding.editTextText.setText(prefs.getString("destination_address", ""));
+        binding.editTextText4.setText(prefs.getString("stop_address", ""));
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        loadSavedAddresses();  // Refresh address fields when returning from MapsActivity2
     }
 }

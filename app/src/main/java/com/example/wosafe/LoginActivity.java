@@ -1,4 +1,5 @@
 package com.example.wosafe;
+
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -11,9 +12,6 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.example.wosafe.MainActivity;
-import com.example.wosafe.R;
-import com.example.wosafe.SignupActivity;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -31,11 +29,25 @@ public class LoginActivity extends AppCompatActivity {
 
     private static final String SHARED_PREF_NAME = "login_pref";
     private static final String KEY_USERNAME = "username";
-    private static final String KEY_PASSWORD = "password"; // Optional: Only store if you want to autofill
+    private static final String KEY_PASSWORD = "password"; // Optional
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        // Check if user has already logged in
+        sharedPreferences = getSharedPreferences(SHARED_PREF_NAME, Context.MODE_PRIVATE);
+        String savedUsername = sharedPreferences.getString(KEY_USERNAME, null);
+
+        if (savedUsername != null) {
+            // User is already logged in, go to MainActivity
+            Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+            startActivity(intent);
+            finish();
+            return;
+        }
+
+        // Show login screen
         setContentView(R.layout.activity_login);
 
         loginUsername = findViewById(R.id.login_username);
@@ -43,28 +55,13 @@ public class LoginActivity extends AppCompatActivity {
         loginButton = findViewById(R.id.login_button);
         signupRedirectText = findViewById(R.id.signupRedirectText);
 
-        sharedPreferences = getSharedPreferences(SHARED_PREF_NAME, Context.MODE_PRIVATE);
-
-        // Check if user is already logged in
-        String savedUsername = sharedPreferences.getString(KEY_USERNAME, null);
-        if (savedUsername != null) {
-            // User is already logged in, redirect to MainActivity
-            Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-            startActivity(intent);
-            finish(); // Close LoginActivity
-        }
-
         loginButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 if (!validateUsername() | !validatePassword()) {
-                    // Validation failed, don't proceed
-                } else {
-                    checkUser();
-                    Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-                    startActivity(intent);
-                    finish();
+                    return;
                 }
+                checkUser();
             }
         });
 
@@ -75,7 +72,6 @@ public class LoginActivity extends AppCompatActivity {
                 startActivity(intent);
             }
         });
-
     }
 
     public Boolean validateUsername() {
@@ -89,7 +85,7 @@ public class LoginActivity extends AppCompatActivity {
         }
     }
 
-    public Boolean validatePassword(){
+    public Boolean validatePassword() {
         String val = loginPassword.getText().toString();
         if (val.isEmpty()) {
             loginPassword.setError("Password cannot be empty");
@@ -114,15 +110,14 @@ public class LoginActivity extends AppCompatActivity {
                     loginUsername.setError(null);
                     String passwordFromDB = snapshot.child(userUsername).child("password").getValue(String.class);
 
-                    if (passwordFromDB.equals(userPassword)) {
+                    if (passwordFromDB != null && passwordFromDB.equals(userPassword)) {
                         loginUsername.setError(null);
 
                         // Save login state in SharedPreferences
                         SharedPreferences.Editor editor = sharedPreferences.edit();
                         editor.putString(KEY_USERNAME, userUsername);
-                        // Optionally store the password for autofill later, not recommended for security reasons
-                        editor.putString(KEY_PASSWORD, userPassword);
-                        editor.apply(); // Commit changes
+                        editor.putString(KEY_PASSWORD, userPassword); // Optional
+                        editor.apply();
 
                         String nameFromDB = snapshot.child(userUsername).child("name").getValue(String.class);
                         String emailFromDB = snapshot.child(userUsername).child("email").getValue(String.class);
@@ -131,11 +126,10 @@ public class LoginActivity extends AppCompatActivity {
                         intent.putExtra("name", nameFromDB);
                         intent.putExtra("email", emailFromDB);
                         intent.putExtra("username", userUsername);
-
                         startActivity(intent);
-                        finish(); // Close LoginActivity
+                        finish();
                     } else {
-                        loginPassword.setError("Invalid Credentials");
+                        loginPassword.setError("Invalid credentials");
                         loginPassword.requestFocus();
                     }
                 } else {
@@ -146,6 +140,7 @@ public class LoginActivity extends AppCompatActivity {
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
+                // You can log or show error if needed
             }
         });
     }
