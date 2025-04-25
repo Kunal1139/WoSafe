@@ -163,7 +163,7 @@ public class MapsActivity2 extends FragmentActivity implements OnMapReadyCallbac
 
         Toast.makeText(this, "Location Saved", Toast.LENGTH_SHORT).show();
         drawRouteIfNeeded();
-        finish(); // return to Shorts
+        finish(); // return to TaxiCab
     }
 
     private String getAddressFromLatLng(LatLng latLng) {

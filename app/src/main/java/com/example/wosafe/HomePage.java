@@ -14,6 +14,8 @@ import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -136,7 +138,7 @@ public class HomePage extends Fragment{
                 getLocation();
 
 
-//                vibrateDevice(5000);
+                vibrateDevice(2000);
             } else {
                 Log.d(TAG, "Requesting permissions...");
 //                ActivityCompat.requestPermissions(requireActivity(),new String[](Manifest.permission.SEND_SMS);
@@ -191,6 +193,14 @@ public class HomePage extends Fragment{
 //        // You can send this updated location via SMS if needed
 //    }
 
+    private boolean isInternetAvailable() {
+        ConnectivityManager connectivityManager = (ConnectivityManager) requireContext().getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetwork = connectivityManager.getActiveNetworkInfo();
+        return activeNetwork != null && activeNetwork.isConnected();
+    }
+
+
+
 
 
 
@@ -204,54 +214,77 @@ public class HomePage extends Fragment{
             return;
         }
 
-        // Set up location request
-        LocationRequest locationRequest = LocationRequest.create()
-                .setInterval(60000) // 2 seconds
-                .setFastestInterval(1000) // 1 second
-                .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+        // Check if internet is available
+        if (isInternetAvailable()) {
+            // Set up location request for real-time location updates
+            LocationRequest locationRequest = LocationRequest.create()
+                    .setInterval(60000) // 60 seconds
+                    .setFastestInterval(1000) // 1 second
+                    .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
 
-        // Location callback to handle location changes
-        locationCallback = new LocationCallback() {
-            @Override
-            public void onLocationResult(@NonNull LocationResult locationResult) {
-                super.onLocationResult(locationResult);
-                if (locationResult != null && locationResult.getLocations() != null) {
-                    for (android.location.Location location : locationResult.getLocations()) {
-                        // Handle location updates here
-                        Log.d(TAG, "Location updated: " + location.getLatitude() + ", " + location.getLongitude());
-                        Geocoder geocoder = new Geocoder(requireContext(), Locale.getDefault());
-                        List<Address> addresses = null;
-                        try {
-                            addresses = geocoder.getFromLocation(location.getLatitude(),location.getLongitude(),1);
-                        } catch (IOException e) {
-                            throw new RuntimeException(e);
+            // Location callback to handle location updates
+            locationCallback = new LocationCallback() {
+                @Override
+                public void onLocationResult(@NonNull LocationResult locationResult) {
+                    super.onLocationResult(locationResult);
+                    if (locationResult != null && locationResult.getLocations() != null) {
+                        for (android.location.Location location : locationResult.getLocations()) {
+                            // Handle location updates here
+                            Log.d(TAG, "Location updated: " + location.getLatitude() + ", " + location.getLongitude());
+                            Geocoder geocoder = new Geocoder(requireContext(), Locale.getDefault());
+                            List<Address> addresses = null;
+                            try {
+                                addresses = geocoder.getFromLocation(location.getLatitude(), location.getLongitude(), 1);
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                            String address = addresses != null ? addresses.get(0).getAddressLine(0) : "Unknown address";
+                            sendSosMessage(location.getLatitude(), location.getLongitude(), address);
                         }
-                        String address = addresses.get(0).getAddressLine(0);
-                        sendSosMessage(location.getLatitude(),location.getLongitude(),address);
                     }
                 }
-            }
-        };
+            };
 
-        // Request location updates
-        fusedLocationClient.requestLocationUpdates(locationRequest, locationCallback, null);
-        Log.d(TAG, "getLocation success");
+            // Request location updates
+            fusedLocationClient.requestLocationUpdates(locationRequest, locationCallback, null);
+            Log.d(TAG, "getLocation success");
+        } else {
+            // If no internet, use the last known location
+            fusedLocationClient.getLastLocation()
+                    .addOnSuccessListener(requireActivity(), location -> {
+                        if (location != null) {
+                            Log.d(TAG, "Last known location: " + location.getLatitude() + ", " + location.getLongitude());
+                            Geocoder geocoder = new Geocoder(requireContext(), Locale.getDefault());
+                            List<Address> addresses = null;
+                            try {
+                                addresses = geocoder.getFromLocation(location.getLatitude(), location.getLongitude(), 1);
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                            String address = addresses != null ? addresses.get(0).getAddressLine(0) : "Unknown address";
+                            sendSosMessage(location.getLatitude(), location.getLongitude(), address);
+                        } else {
+                            Log.e(TAG, "No location data available.");
+                        }
+                    });
+        }
     }
 
-//    private void vibrateDevice(long milliseconds) {
-//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-//            VibratorManager vibratorManager = (VibratorManager) requireContext().getSystemService(Context.VIBRATOR_MANAGER_SERVICE);
-//            Vibrator vibrator = vibratorManager.getDefaultVibrator();
-//            vibrator.vibrate(VibrationEffect.createOneShot(milliseconds, VibrationEffect.DEFAULT_AMPLITUDE));
-//        } else {
-//            Vibrator vibrator = (Vibrator) requireContext().getSystemService(Context.VIBRATOR_SERVICE);
-//            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-//                vibrator.vibrate(VibrationEffect.createOneShot(milliseconds, VibrationEffect.DEFAULT_AMPLITUDE));
-//            } else {
-//                vibrator.vibrate(milliseconds);
-//            }
-//        }
-//    }
+
+    private void vibrateDevice(long milliseconds) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            VibratorManager vibratorManager = (VibratorManager) requireContext().getSystemService(Context.VIBRATOR_MANAGER_SERVICE);
+            Vibrator vibrator = vibratorManager.getDefaultVibrator();
+            vibrator.vibrate(VibrationEffect.createOneShot(milliseconds, VibrationEffect.DEFAULT_AMPLITUDE));
+        } else {
+            Vibrator vibrator = (Vibrator) requireContext().getSystemService(Context.VIBRATOR_SERVICE);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                vibrator.vibrate(VibrationEffect.createOneShot(milliseconds, VibrationEffect.DEFAULT_AMPLITUDE));
+            } else {
+                vibrator.vibrate(milliseconds);
+            }
+        }
+    }
 
 
 

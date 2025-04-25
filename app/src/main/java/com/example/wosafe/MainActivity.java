@@ -4,7 +4,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.View;
 import android.widget.Toast;
 
 import androidx.appcompat.app.ActionBarDrawerToggle;
@@ -59,7 +58,7 @@ public class MainActivity extends AppCompatActivity {
                     replaceFragment(new HomePage());
                     break;
                 case R.id.shorts:
-                    replaceFragment(new Shorts());
+                    replaceFragment(new TaxiCab());
                     break;
                 case R.id.subscriptions:
                     replaceFragment(new GeoFence());

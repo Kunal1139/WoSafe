@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
+import android.provider.ContactsContract;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,17 +19,14 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import com.example.wosafe.databinding.FragmentShortsBinding;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
-import com.google.firebase.storage.UploadTask;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 
-public class Shorts extends Fragment {
+public class TaxiCab extends Fragment {
 
     private FragmentShortsBinding binding;
     private ActivityResultLauncher<Intent> imagePickerLauncher;
@@ -63,14 +61,16 @@ public class Shorts extends Fragment {
 
         binding.button5.setOnClickListener(v -> selectImage());
 
-        binding.button4.setOnClickListener(v -> uploadImage());
+//        binding.button4.setOnClickListener(v -> uploadImage());
 
-        binding.button.setOnClickListener(v ->
-                Toast.makeText(getContext(), "Select Route Clicked", Toast.LENGTH_SHORT).show()
-        );
 
         loadSavedAddresses();
         return view;
+    }
+
+    private void openContactPicker(int requestCode) {
+        Intent intent = new Intent(Intent.ACTION_PICK, ContactsContract.Contacts.CONTENT_URI);
+        startActivityForResult(intent, requestCode);
     }
 
     private void selectImage() {
